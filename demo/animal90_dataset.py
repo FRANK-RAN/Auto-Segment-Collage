@@ -5,13 +5,14 @@ import os
 url = 'https://drive.google.com/uc?id=1XykJthWV9bWpzwccaBOBtc0aNJ6YI-94'
 output_path = 'data/animal90.zip'
 
+destination_directory = 'data/'
+
+os.makedirs(destination_directory, exist_ok=True)
+
 gdown.download(url, output_path, quiet=False)
 
 # Unzip the files
 zip_file_path = 'data/animal90.zip'
-destination_directory = 'data/'
-
-os.makedirs(destination_directory, exist_ok=True)
 
 with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
     for file in zip_ref.namelist():
