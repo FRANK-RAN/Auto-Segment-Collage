@@ -5,3 +5,4 @@ torch
 torchvision
 gdown
 nltk
+gradio
