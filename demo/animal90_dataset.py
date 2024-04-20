@@ -2,10 +2,11 @@ import gdown
 import zipfile
 import os
 
+print("Current working directory:", os.getcwd())
 url = 'https://drive.google.com/uc?id=1XykJthWV9bWpzwccaBOBtc0aNJ6YI-94'
-output_path = 'data/animal90.zip'
+output_path = '/animal90.zip'
 
-destination_directory = 'data/'
+destination_directory = 'animals/'
 
 os.makedirs(destination_directory, exist_ok=True)
 

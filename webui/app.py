@@ -1,9 +1,22 @@
+import sys
+import os
+
+# Add the parent directory to sys.path to access pipeline.py
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+
+
+from pipeline import process
 import gradio as gr
 import pdb
 
+
 def update(input_cate):
+    pic_dic = process(input_cate)
+    avlaible_genres = list(pic_dic.keys())
+    ## TODO: call the segmentation and classification model
     return gr.Dropdown(
-            ["tigers", "dogs", "cats", "Feifeis"], 
+            avlaible_genres,                      ## TODO: replace with actual available genres
             label="Available Genres", 
             interactive=True,
             info="Segementation and classification completed. Please choose the genre you would like to view."
