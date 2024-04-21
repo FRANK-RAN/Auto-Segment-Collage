@@ -5,7 +5,7 @@ import cv2
 import supervision as sv
 import numpy as np
 
-def segment_image(IMAGE_PATH, mask_generator, result_dir='/home/jr151/code/projects/Auto-Segment-Collage/sam/results/'):
+def segment_image(IMAGE_PATH, mask_generator, result_dir):
     image_bgr = cv2.imread(IMAGE_PATH)
     image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)     # image_rgb is a numpy array with shape [W,H,3]
     sam_result = mask_generator.generate(image_rgb)

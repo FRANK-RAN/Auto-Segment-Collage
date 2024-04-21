@@ -90,7 +90,7 @@ def process(dir_path):
     MODEL_TYPE = "vit_h"
     sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT_PATH).to(device=SAM_device)
     mask_generator = SamAutomaticMaskGenerator(sam)
-    segment_result_dir = '/home/jr151/code/projects/Auto-Segment-Collage/results/'
+    segment_result_dir = './results/'  #
 
     animal_images = run_pipeline(image_paths, mask_generator, clip_model, clip_processor, CLIP_device, label_texts, segment_result_dir)
     return animal_images
