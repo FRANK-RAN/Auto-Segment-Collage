@@ -39,10 +39,11 @@ def segment_batch_images(IMAGE_DIR, mask_generator, result_dir='/home/jr151/code
 
 
 def main():
-    HOME = os.getcwd()
-    Model_dir = os.path.join('/home/jr151/model')
-    CHECKPOINT_PATH = os.path.join(Model_dir, "seg", "sam_vit_h_4b8939.pth")
+    # HOME = os.getcwd()
+    # Model_dir = os.path.join('/home/jr151/model')
+    # CHECKPOINT_PATH = os.path.join(Model_dir, "seg", "sam_vit_h_4b8939.pth")
     DEVICE = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+    CHECKPOINT_PATH = '/home/jr151/model/seg/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
     MODEL_TYPE = "vit_h"
     sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH).to(device=DEVICE)
     mask_generator = SamAutomaticMaskGenerator(sam)

@@ -34,11 +34,6 @@ def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device
     A dictionary with animal labels as keys and lists of segmented image paths as values.
     """
     animal_images = {}
-    transform = Compose([
-        Resize((224, 224)),
-        ToTensor(),
-        Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
-    ])
 
     # Process each image
     for image_path in image_paths:
@@ -84,20 +79,20 @@ def get_file_paths(directory):
 
 
 def process(dir_path):
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
+    CLIP_device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(CLIP_device)
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     label_texts = ["cat", "antelope", "bear", "background"]  # Add your text here
     image_paths = get_file_paths(dir_path)
-    Model_dir = os.path.join('/home/jr151/model')
-    CHECKPOINT_PATH = os.path.join(Model_dir, "seg", "sam_vit_h_4b8939.pth")
-    DEVICE = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+
+    SAM_CHECKPOINT_PATH = '/home/jr151/model/seg/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
+    SAM_device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
     MODEL_TYPE = "vit_h"
-    sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH).to(device=DEVICE)
+    sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT_PATH).to(device=SAM_device)
     mask_generator = SamAutomaticMaskGenerator(sam)
     segment_result_dir = '/home/jr151/code/projects/Auto-Segment-Collage/results/'
 
-    animal_images = run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device, label_texts, segment_result_dir)
+    animal_images = run_pipeline(image_paths, mask_generator, clip_model, clip_processor, CLIP_device, label_texts, segment_result_dir)
     return animal_images
 
 
@@ -120,4 +115,5 @@ def get_file_paths(directory):
 
 
 if __name__ == '__main__':
-    main()
+    animal_images = process("/home/jr151/data/animals/animals/test/")
+    print(animal_images)
