@@ -14,6 +14,7 @@ pip install -q jupyter_bbox_widget roboflow dataclasses-json supervision
 
 # Download Model weights
 mkdir sam_model    # make your sam model dir
+cd sam_model
 mkdir -p weights
 wget -q https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth -P ./weights
 ```
