@@ -6,7 +6,7 @@ import json
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 
-from SoftCollage.ops import collage
+from SoftCollage.ops import soft_collage
 from SoftCollage.utils import parse_config
 from pipeline import process
 import gradio as gr
@@ -47,10 +47,11 @@ def get_select_value(selected_gallery, evt: gr.SelectData):
 def collage(selected_gallery):
     selected_images = []
     for img in selected_gallery: # [(path, label)]
-        selected_images.append(img[0])
+        filename = os.path.basename(img[0])
+        selected_images.append(filename)
     
     config = parse_config("configs/SC.conf")
-    config.ICSS_DIR = "../results"
+    config.ICSS_DIR = "results"
     
     selected_images_json = {}
     selected_images_data = json.loads(json.dumps(selected_images_json))
@@ -60,11 +61,9 @@ def collage(selected_gallery):
     with open("results/selected_images.json", "w") as outfile:
         json.dump(selected_images_data, outfile)
     
-    pdb.set_trace()
+    soft_collage(config)
     
-    collage(config)
-    
-    return "http://www.marketingtool.online/en/face-generator/img/faces/avatar-11319be65db395d0e8e6855d18ddcef0.jpg"
+    return "output_dir/best_resize.png"
 
 with gr.Blocks() as demo:    
     gr.Markdown('''
@@ -94,18 +93,7 @@ with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column():
             gallery = gr.Gallery(
-                [
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-1151ce9f4b2043de0d2e3b7826127998.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-116b5e92936b766b7fdfc242649337f7.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-1163530ca19b5cebe1b002b8ec67b6fc.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-1116395d6e6a6581eef8b8038f4c8e55.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-11319be65db395d0e8e6855d18ddcef0.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-1151ce9f4b2043de0d2e3b7826127998.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-116b5e92936b766b7fdfc242649337f7.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-1163530ca19b5cebe1b002b8ec67b6fc.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-1116395d6e6a6581eef8b8038f4c8e55.jpg",
-                "http://www.marketingtool.online/en/face-generator/img/faces/avatar-11319be65db395d0e8e6855d18ddcef0.jpg",
-                ], columns=[5], object_fit="contain", show_label=False, elem_classes="gallery", height=300, label="Available Images", interactive=False
+                [], columns=[5], object_fit="contain", show_label=False, elem_classes="gallery", height=300, label="Available Images", interactive=False
             )
             gr.Markdown('''
                 Select the images you would like to include in your collage by clicking on them.

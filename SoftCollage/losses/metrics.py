@@ -119,7 +119,7 @@ def aesthetics_awareness(hn,config,*args,**kargs):
         
     nodes=hn.return_leaves()
     postfix=config.mode[:2].upper()
-    imgs=[cv2.cvtColor(load_img(node.name,os.path.join(config.ICSS_DIR,f"ICSS-{postfix}/ICSS-{postfix}-Image"),package='opencv'),cv2.COLOR_BGR2HSV) for node in nodes]
+    imgs=[cv2.cvtColor(load_img(node.name,os.path.join(config.ICSS_DIR,f"selected_images"),package='opencv'),cv2.COLOR_BGR2HSV) for node in nodes]
     Hs=[cv2.calcHist(images=[img],channels=[0],mask=None,histSize=[256],ranges=[0,256]) for img in imgs]
     Hs=[cv2.normalize(H,H).flatten() for H in Hs]
     ret=0

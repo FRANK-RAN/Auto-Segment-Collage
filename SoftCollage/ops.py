@@ -116,7 +116,7 @@ def train_imgset(config):
                     if config.save_best_output:
                         logger.debug("tree2collage[NORESIZE]")
                         _,flag=tree2collage(hardroot,config.W,config.H,algo='NORESIZE',dirname=os.path.join(
-                            config.ICSS_DIR,f"ICSS-{postfix}/ICSS-{postfix}-Image"),save=True,
+                            config.ICSS_DIR,f"selected_images"),save=True,
                                      save_path=os.path.join(config.output_dir,'best_resize.png'))
     
     metrics.save_metrics(os.path.join(config.output_dir,'metrics_crop.json'))
@@ -127,45 +127,45 @@ def train_imgset(config):
     return metrics,flag
             
             
-def main():
-    config=parse_config()
+def soft_collage(config):
+    print("---------------------------------------------")
     train_imgset(config)
 
     
-def collage(config):
+# def soft_collage(config):
     
-    LAST_IMGSET_NAME=config.LAST_IMGSET_NAME
-    START=False
-    sict=json.load(open(os.path.join(config.ICSS_DIR, f"selected_images.json"),'r'))
+#     LAST_IMGSET_NAME=config.LAST_IMGSET_NAME
+#     START=False
+#     sict=json.load(open(os.path.join(config.ICSS_DIR, f"selected_images.json"),'r'))
         
-    img_erosion={}
-    for imgset_name,imgs in sict.items():
+#     img_erosion={}
+#     for imgset_name,imgs in sict.items():
         
-        config["imgset_name"]=imgset_name
-        config["output_dir"]=f"{config.root_output_dir}/{imgset_name}"
+#         config["imgset_name"]=imgset_name
+#         config["output_dir"]=f"{config.root_output_dir}/{imgset_name}"
 
-        # if len(LAST_IMGSET_NAME)!=0 and config.imgset_name==LAST_IMGSET_NAME:
-        #     START=True
-        #     if os.path.exists(config.output_dir):
-        #         shutil.rmtree(config.output_dir)
-        #         print(f"rm -rf {config.output_dir}")
-        # if len(LAST_IMGSET_NAME)!=0 and not START:
-        #     print(f"skip for output_dir {config.output_dir}")
-        #     continue
+#         # if len(LAST_IMGSET_NAME)!=0 and config.imgset_name==LAST_IMGSET_NAME:
+#         #     START=True
+#         #     if os.path.exists(config.output_dir):
+#         #         shutil.rmtree(config.output_dir)
+#         #         print(f"rm -rf {config.output_dir}")
+#         # if len(LAST_IMGSET_NAME)!=0 and not START:
+#         #     print(f"skip for output_dir {config.output_dir}")
+#         #     continue
 
-        try:
-            m,flag=train_imgset(config)
-            if flag>0:
-                img_erosion[imgset_name]=flag
-        except KeyError:
-            print(f"No imgset_name={config.output_dir}")
-            if os.path.exists(config.output_dir):
-                shutil.rmtree(config.output_dir)
-                print(f"rm -rf {config.output_dir}")
-            continue
-    json.dump(img_erosion,open(os.path.join(config.root_output_dir,'img_erosion.json'),'w'))
+#         try:
+#             m,flag=train_imgset(config)
+#             if flag>0:
+#                 img_erosion[imgset_name]=flag
+#         except KeyError:
+#             print(f"No imgset_name={config.output_dir}")
+#             if os.path.exists(config.output_dir):
+#                 shutil.rmtree(config.output_dir)
+#                 print(f"rm -rf {config.output_dir}")
+#             continue
+#     json.dump(img_erosion,open(os.path.join(config.root_output_dir,'img_erosion.json'),'w'))
 
 if __name__=='__main__':
     # main()
-    collage()
+    soft_collage()
     

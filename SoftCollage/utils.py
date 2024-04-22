@@ -23,7 +23,7 @@ from heapq import *
 import networks
 import losses
 import utils
-
+import pdb
 
 
 
@@ -89,14 +89,14 @@ def load_data(config):
     """
     postfix=config.mode[:2].upper()
     names=json.load(open(os.path.join(config.ICSS_DIR,
-                                      f'AIC-{postfix}.json'),'r'))[config.imgset_name]
+                                      f'selected_images.json'),'r'))[config.imgset_name]
     
     name2tensor=dict()
     name2ar=dict()
     preprocess=transforms.Compose([transforms.ToTensor(),
                                    transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
     for name in names:
-        img=load_img(name,os.path.join(config.ICSS_DIR,f"ICSS-{postfix}/ICSS-{postfix}-Image"))
+        img=load_img(name,os.path.join(config.ICSS_DIR,f"selected_images"))
         name2tensor[name]=(preprocess(img)).unsqueeze(0)
         name2ar[name]=img.size[0]/img.size[1]
     return name2tensor,name2ar
@@ -134,15 +134,10 @@ def to_gpu(config,obj,thread=0,cuda_id=0):
         - automatically assign the NET/TENSOR on GPU of cuda_id in loop
         - set cuda_id of the NET(NET.cuda_id==TENSOR.device.index)
     """
-    print("---------------------------CUDA-----------------------------")
-    print(torch.cuda.is_available())
-    print(torch.cuda.device_count())
-    print(os.environ["CUDA_VISIBLE_DEVICES"])
     if config.use_gpu and torch.cuda.is_available():
-        # if not torch.is_tensor(obj):
-        #     obj.set_cuda_id(cuda_id)
-        # return obj.to(torch.device(f'cuda:{cuda_id}'))
-        return nn.DataParallel(obj,device_ids=[0, 1]).cuda()
+        if not torch.is_tensor(obj):
+            obj.set_cuda_id(cuda_id)
+        return obj.to(torch.device(f'cuda:{cuda_id}'))
 
 
 
@@ -354,8 +349,8 @@ def reduce_grad(nets):
     if len(nets)<=1:
         return
     for i in range(1,len(nets)):
-        for p,p_ in zip(nets[0].parameters(),nets[i].parameters()):
-            if p.requires_grad:
+        for p, p_ in zip(nets[0].parameters(),nets[i].parameters()):
+            if p.requires_grad and p_.grad is not None:
                 p.grad+=p_.grad.to(p.device)
             
     del nets[1:]
@@ -454,6 +449,7 @@ def tree2collage(root,W,H,dirname,algo='CROP',show=False,save=False,save_path='c
         plt.figure()
         plt.imshow(collage)
     if save:
+        print("---------------",save_path)
         collage.save(save_path)
     return collage,NUM_0node
     
