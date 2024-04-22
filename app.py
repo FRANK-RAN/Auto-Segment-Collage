@@ -63,7 +63,7 @@ def collage(selected_gallery):
     
     soft_collage(config)
     
-    return "output_dir/best_resize.png"
+    return "output_dir/SC/best_resize.png"
 
 with gr.Blocks() as demo:    
     gr.Markdown('''
