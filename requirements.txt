@@ -6,3 +6,7 @@ torchvision
 gdown
 nltk
 gradio
+jupyter_bbox_widget
+roboflow
+dataclasses-json
+supervision

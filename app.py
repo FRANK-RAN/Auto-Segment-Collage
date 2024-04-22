@@ -10,17 +10,28 @@ from pipeline import process
 import gradio as gr
 import pdb
 
+pic_dic = []
 
 def update(input_cate):
+    global pic_dic
+    
     pic_dic = process(input_cate)
     avlaible_genres = list(pic_dic.keys())
-    ## TODO: call the segmentation and classification model
     return gr.Dropdown(
-            avlaible_genres,                      ## TODO: replace with actual available genres
+            avlaible_genres,
             label="Available Genres", 
             interactive=True,
             info="Segementation and classification completed. Please choose the genre you would like to view."
         )
+    
+def get_select_cate(options, evt: gr.SelectData):
+    pics = []
+    for i in options:
+        pics += pic_dic[i]
+    gallery = gr.Gallery(
+        pics, columns=[5], object_fit="contain", height=300, show_label=False, elem_id="gallery", label="Available Images", interactive=True
+    )
+    return gallery
 
 def get_select_value(selected_gallery, evt: gr.SelectData):
     if selected_gallery:
@@ -56,7 +67,8 @@ with gr.Blocks() as demo:
             [], 
             label="Available Genres", 
             interactive=True,
-            info="Wait segementation and classification to start."
+            info="Wait segementation and classification to start.",
+            multiselect=True
         )
     with gr.Row():
         with gr.Column():
@@ -84,9 +96,10 @@ with gr.Blocks() as demo:
         output = gr.Image(label="Collage")
     
     # Events
-    gallery.select(get_select_value, selected_gallery, selected_gallery)
+    gallery.select(get_select_value, inputs=selected_gallery, outputs=selected_gallery)
     process_btn.click(fn=update, inputs=inp, outputs=[options])
+    options.select(get_select_cate, inputs=options, outputs=gallery)
     collage_btn.click(collage, None, output)
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    demo.launch()

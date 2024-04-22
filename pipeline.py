@@ -17,6 +17,7 @@ from transformers import CLIPProcessor, CLIPModel
 import numpy as np
 from torchvision import transforms
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
+import shutil
 
 def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device, label_texts, segment_result_dir):
     """
@@ -77,6 +78,16 @@ def get_file_paths(directory):
             file_paths.append(file_path)
     return file_paths
 
+def clear_directory(directory):
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
 
 def process(dir_path):
     CLIP_device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -85,12 +96,14 @@ def process(dir_path):
     label_texts = ["cat", "antelope", "bear", "background"]  # Add your text here
     image_paths = get_file_paths(dir_path)
 
-    SAM_CHECKPOINT_PATH = '/home/jr151/model/seg/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
+    SAM_CHECKPOINT_PATH = 'checkpoints/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
     SAM_device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
     MODEL_TYPE = "vit_h"
     sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT_PATH).to(device=SAM_device)
     mask_generator = SamAutomaticMaskGenerator(sam)
-    segment_result_dir = './results/'  #
+    segment_result_dir = 'results'
+    
+    clear_directory(segment_result_dir)
 
     animal_images = run_pipeline(image_paths, mask_generator, clip_model, clip_processor, CLIP_device, label_texts, segment_result_dir)
     return animal_images
@@ -115,5 +128,5 @@ def get_file_paths(directory):
 
 
 if __name__ == '__main__':
-    animal_images = process("/home/jr151/data/animals/animals/test/")
+    animal_images = process("data")
     print(animal_images)
