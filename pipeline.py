@@ -1,25 +1,15 @@
 import os
-import cv2
-import numpy as np
-from PIL import Image
 import torch
-from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from transformers import CLIPProcessor, CLIPModel
 from models.clip_module import clip_prediction, load_images
 from models.sam_module import segment_image
 import os
 import torch
-import cv2
-import numpy as np
-from PIL import Image
-import torch
 from transformers import CLIPProcessor, CLIPModel
-import numpy as np
-from torchvision import transforms
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 import shutil
 
-def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device, label_texts, segment_result_dir):
+def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device, label_texts, segment_result_dir, selected_images_dir):
     """
     Pipeline to process a list of image paths: segment, label, and filter images based on labels.
 
@@ -38,15 +28,13 @@ def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device
 
     # Process each image
     for image_path in image_paths:
-        base_name = os.path.basename(image_path)
+        base_name = os.path.basename(image_path).split('.')[0]  # Use the base name of the original image file without extension
         result_dir = os.path.join(segment_result_dir, base_name)            # create a directory for each image
         os.makedirs(result_dir, exist_ok=True)
-
         # Segment the image
         segmented_images, save_paths = segment_image(image_path, mask_generator, result_dir)
 
         # Load and preprocess segmented images for CLIP
-        # processed_images = [transform(Image.fromarray(img.astype(np.uint8)).convert("RGB")) for img in segmented_images]
         processed_images = load_images(save_paths)
 
         # Use CLIP to label the images
@@ -55,7 +43,13 @@ def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device
         if image_pred != 'background':
             if image_pred not in animal_images:
                 animal_images[image_pred] = []
-            animal_images[image_pred].append(selected_image_path)
+            unique_file_name = f"{base_name}_{os.path.basename(selected_image_path)}"
+            # Copy the file
+            selected_image_path_in_collection = os.path.join(selected_images_dir, unique_file_name)
+            shutil.copy(selected_image_path, selected_image_path_in_collection)
+            animal_images[image_pred].append(selected_image_path_in_collection)
+        
+
 
     return animal_images
 
@@ -92,18 +86,20 @@ def process(dir_path):
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(CLIP_device)
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     label_texts =  [
-        "antelope", "badger", "bat", "bear", "bee", "beetle", "bison", "boar",
-        "butterfly", "cat", "caterpillar", "chimpanzee", "cockroach", "cow",
-        "coyote", "crab", "crow", "deer", "dog", "dolphin", "donkey", "dragonfly",
-        "duck", "eagle", "elephant", "flamingo", "fly", "fox", "goat", "goldfish",
-        "goose", "gorilla", "grasshopper", "hamster", "hare", "hedgehog", "hippopotamus",
-        "hornbill", "horse", "hummingbird", "hyena", "jellyfish", "kangaroo", "koala",
-        "ladybugs", "leopard", "lion", "lizard", "lobster", "mosquito", "moth", "mouse",
-        "octopus", "okapi", "orangutan", "otter", "owl", "ox", "oyster", "panda", "parrot",
-        "pelecaniformes", "penguin", "pig", "pigeon", "porcupine", "possum", "raccoon",
-        "rat", "reindeer", "rhinoceros", "sandpiper", "seahorse", "seal", "shark", "sheep",
-        "snake", "sparrow", "squid", "squirrel", "starfish", "swan", "tiger", "turkey",
-        "turtle", "whale", "wolf", "wombat", "woodpecker", "zebra", "background", "unknown"
+        "antelope", "badger", "bat", "bear", "bee", 
+        # "beetle", "bison", "boar",
+        # "butterfly", "cat", "caterpillar", "chimpanzee", "cockroach", "cow",
+        # "coyote", "crab", "crow", "deer", "dog", "dolphin", "donkey", "dragonfly",
+        # "duck", "eagle", "elephant", "flamingo", "fly", "fox", "goat", "goldfish",
+        # "goose", "gorilla", "grasshopper", "hamster", "hare", "hedgehog", "hippopotamus",
+        # "hornbill", "horse", "hummingbird", "hyena", "jellyfish", "kangaroo", "koala",
+        # "ladybugs", "leopard", "lion", "lizard", "lobster", "mosquito", "moth", "mouse",
+        # "octopus", "okapi", "orangutan", "otter", "owl", "ox", "oyster", "panda", "parrot",
+        # "pelecaniformes", "penguin", "pig", "pigeon", "porcupine", "possum", "raccoon",
+        # "rat", "reindeer", "rhinoceros", "sandpiper", "seahorse", "seal", "shark", "sheep",
+        # "snake", "sparrow", "squid", "squirrel", "starfish", "swan", "tiger", "turkey",
+        # "turtle", "whale", "wolf", "wombat", "woodpecker", "zebra", 
+        "background", "unknown"
     ]  # Add your text here
 
    
@@ -114,11 +110,14 @@ def process(dir_path):
     MODEL_TYPE = "vit_h"
     sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT_PATH).to(device=SAM_device)
     mask_generator = SamAutomaticMaskGenerator(sam)
-    segment_result_dir = 'results'
-    
+    segment_result_dir = 'results/segmented_images'
+    selected_images_dir = 'results/selected_images'
+    os.makedirs(selected_images_dir, exist_ok=True)
+    os.makedirs(segment_result_dir, exist_ok=True)
     clear_directory(segment_result_dir)
+    clear_directory(selected_images_dir)
 
-    animal_images = run_pipeline(image_paths, mask_generator, clip_model, clip_processor, CLIP_device, label_texts, segment_result_dir)
+    animal_images = run_pipeline(image_paths, mask_generator, clip_model, clip_processor, CLIP_device, label_texts, segment_result_dir, selected_images_dir)
     return animal_images
 
 
@@ -140,7 +139,7 @@ def get_file_paths(directory):
     return file_paths
 
 
-if __name__ == '__main__':
-    animal_images = process("home/jr151/code/projects/Auto-Segment-Collage/input/custom_dataset/antelope")
-    print(animal_images)
+# if __name__ == '__main__':
+#     animal_images = process("/home/jr151/code/projects/Auto-Segment-Collage/input/custom_dataset_5")
+#     print(animal_images)
     

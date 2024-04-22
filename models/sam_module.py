@@ -1,8 +1,7 @@
 import os
 import torch
-from segment_anything import sam_model_registry, SamAutomaticMaskGenerator, SamPredictor
+from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 import cv2
-import supervision as sv
 import numpy as np
 
 def segment_image(IMAGE_PATH, mask_generator, result_dir):

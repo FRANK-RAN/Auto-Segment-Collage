@@ -2,9 +2,8 @@
 from PIL import Image
 import torch
 from transformers import CLIPProcessor, CLIPModel
-from torch.cuda.amp import autocast
 import numpy as np
-from torchvision import transforms
+
 
 def load_images(image_paths):
     # Load images as PIL images
