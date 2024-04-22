@@ -97,7 +97,7 @@ def process(dir_path):
     image_paths = get_file_paths(dir_path)
 
     SAM_CHECKPOINT_PATH = 'checkpoints/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
-    SAM_device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
+    SAM_device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
     MODEL_TYPE = "vit_h"
     sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT_PATH).to(device=SAM_device)
     mask_generator = SamAutomaticMaskGenerator(sam)

@@ -1,0 +1,1 @@
+export CUDA_VISIBLE_DEVICES=0 && python ops.py --config_name configs/SC.conf

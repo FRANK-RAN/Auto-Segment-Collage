@@ -1,11 +1,13 @@
 import sys
 import os
+import json
 
 # Add the parent directory to sys.path to access pipeline.py
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 
-
+from SoftCollage.ops import collage
+from SoftCollage.utils import parse_config
 from pipeline import process
 import gradio as gr
 import pdb
@@ -42,7 +44,26 @@ def get_select_value(selected_gallery, evt: gr.SelectData):
         )
     return selected_gallery
 
-def collage():
+def collage(selected_gallery):
+    selected_images = []
+    for img in selected_gallery: # [(path, label)]
+        selected_images.append(img[0])
+    
+    config = parse_config("configs/SC.conf")
+    config.ICSS_DIR = "../results"
+    
+    selected_images_json = {}
+    selected_images_data = json.loads(json.dumps(selected_images_json))
+    selected_images_data["images"] = selected_images
+    
+    # save the json file
+    with open("results/selected_images.json", "w") as outfile:
+        json.dump(selected_images_data, outfile)
+    
+    
+    
+    
+    pdb.set_trace()
     return "http://www.marketingtool.online/en/face-generator/img/faces/avatar-11319be65db395d0e8e6855d18ddcef0.jpg"
 
 with gr.Blocks() as demo:    
@@ -99,7 +120,7 @@ with gr.Blocks() as demo:
     gallery.select(get_select_value, inputs=selected_gallery, outputs=selected_gallery)
     process_btn.click(fn=update, inputs=inp, outputs=[options])
     options.select(get_select_cate, inputs=options, outputs=gallery)
-    collage_btn.click(collage, None, output)
+    collage_btn.click(collage, selected_gallery, output)
 
 if __name__ == "__main__":
     demo.launch()

@@ -1,0 +1,8 @@
+argparse
+opencv-python
+torch
+numpy
+pillow
+matplotlib
+torchvision
+scipy
