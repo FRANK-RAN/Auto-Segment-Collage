@@ -50,14 +50,12 @@ def run_pipeline(image_paths, mask_generator, clip_model, clip_processor, device
         processed_images = load_images(save_paths)
 
         # Use CLIP to label the images
-        probs, preds = clip_prediction(clip_model, clip_processor, processed_images, label_texts, device)
-
-        # Filter and organize results
-        for pred, path in zip(preds, save_paths):
-            if pred != 'Background':  # Assuming label_texts include specific animal names
-                if pred not in animal_images:
-                    animal_images[pred] = []
-                animal_images[pred].append(path)
+        image_index, image_pred = clip_prediction(clip_model, clip_processor, processed_images, label_texts, device)
+        selected_image_path = save_paths[image_index]
+        if image_pred != 'background':
+            if image_pred not in animal_images:
+                animal_images[image_pred] = []
+            animal_images[image_pred].append(selected_image_path)
 
     return animal_images
 
@@ -93,10 +91,25 @@ def process(dir_path):
     CLIP_device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(CLIP_device)
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    label_texts = ["cat", "antelope", "bear", "background"]  # Add your text here
+    label_texts =  [
+        "antelope", "badger", "bat", "bear", "bee", "beetle", "bison", "boar",
+        "butterfly", "cat", "caterpillar", "chimpanzee", "cockroach", "cow",
+        "coyote", "crab", "crow", "deer", "dog", "dolphin", "donkey", "dragonfly",
+        "duck", "eagle", "elephant", "flamingo", "fly", "fox", "goat", "goldfish",
+        "goose", "gorilla", "grasshopper", "hamster", "hare", "hedgehog", "hippopotamus",
+        "hornbill", "horse", "hummingbird", "hyena", "jellyfish", "kangaroo", "koala",
+        "ladybugs", "leopard", "lion", "lizard", "lobster", "mosquito", "moth", "mouse",
+        "octopus", "okapi", "orangutan", "otter", "owl", "ox", "oyster", "panda", "parrot",
+        "pelecaniformes", "penguin", "pig", "pigeon", "porcupine", "possum", "raccoon",
+        "rat", "reindeer", "rhinoceros", "sandpiper", "seahorse", "seal", "shark", "sheep",
+        "snake", "sparrow", "squid", "squirrel", "starfish", "swan", "tiger", "turkey",
+        "turtle", "whale", "wolf", "wombat", "woodpecker", "zebra", "background", "unknown"
+    ]  # Add your text here
+
+   
     image_paths = get_file_paths(dir_path)
 
-    SAM_CHECKPOINT_PATH = 'checkpoints/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
+    SAM_CHECKPOINT_PATH = '/home/jr151/model/seg/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
     SAM_device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
     MODEL_TYPE = "vit_h"
     sam = sam_model_registry[MODEL_TYPE](checkpoint=SAM_CHECKPOINT_PATH).to(device=SAM_device)
@@ -128,5 +141,6 @@ def get_file_paths(directory):
 
 
 if __name__ == '__main__':
-    animal_images = process("data")
+    animal_images = process("home/jr151/code/projects/Auto-Segment-Collage/input/custom_dataset/antelope")
     print(animal_images)
+    

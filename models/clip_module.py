@@ -14,7 +14,7 @@ def load_images(image_paths):
 
 def clip_prediction(model, processor, images, texts, device):
     """
-    Make predictions on the images and texts
+    Make predictions on the images and texts and return the top 3 probabilities with their corresponding images and labels.
 
     Args:
     model: CLIP model
@@ -24,19 +24,41 @@ def clip_prediction(model, processor, images, texts, device):
     device: Device to run the model on
 
     Returns:
-    probs: Predicted probabilities
-    preds: Predicted labels
+    top_probs: List of top 3 probabilities
+    top_segments: List of images corresponding to the top 3 probabilities
+    top_labels: List of labels corresponding to the top 3 probabilities
     """
 
+    # Process the inputs
     inputs = processor(text=texts, images=images, return_tensors="pt", padding=True)
     inputs = {k: v.to(device) for k, v in inputs.items()}  # Move inputs to the correct device
-    with autocast():
+
+    # Make predictions
+    with torch.cuda.amp.autocast(enabled=True):
         outputs = model(**inputs)
-    probs = outputs.logits_per_image.softmax(dim=1)
-    probs = probs.cpu().detach().numpy()
-    index = np.argmax(probs, axis=1)
-    preds = [texts[i] for i in index]
-    return probs, preds
+
+    # Calculate probabilities
+    logits_per_image = outputs.logits_per_image  # this is the image-text similarity score
+    probs = logits_per_image.softmax(dim=1)  # we apply softmax to get probabilities
+    probs = probs.cpu().detach().numpy()  # move data back to cpu and convert to numpy
+
+    # Flatten the probability matrix to sort and find top 3 probabilities
+    flat_indices = np.argsort(-probs.ravel())[:3]  # Get indices of top 3 probabilities in flattened array
+    top_probs_indices = np.unravel_index(flat_indices, probs.shape)  # Convert flat indices to tuple (row, col)
+
+    image_index = top_probs_indices[0][0]
+    image_pred_index = top_probs_indices[1][0]
+    image_pred = texts[image_pred_index]
+    # Extract top 3 probabilities, segments, and labels
+    top_probs = probs[top_probs_indices]
+    top_segments = [images[idx] for idx in top_probs_indices[0]]
+    top_labels = [texts[idx] for idx in top_probs_indices[1]]
+
+    return image_index, image_pred
+
+
+
+
 
 def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
