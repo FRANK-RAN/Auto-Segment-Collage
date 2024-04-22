@@ -60,10 +60,10 @@ def collage(selected_gallery):
     with open("results/selected_images.json", "w") as outfile:
         json.dump(selected_images_data, outfile)
     
-    
-    
-    
     pdb.set_trace()
+    
+    collage(config)
+    
     return "http://www.marketingtool.online/en/face-generator/img/faces/avatar-11319be65db395d0e8e6855d18ddcef0.jpg"
 
 with gr.Blocks() as demo:    
