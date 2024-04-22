@@ -44,6 +44,11 @@ def get_select_value(selected_gallery, evt: gr.SelectData):
         )
     return selected_gallery
 
+def clear():
+    return gr.Gallery(
+        [], columns=[5], object_fit="contain", height=200, show_label=False, elem_id="gallery", label="Selected Images", interactive=False
+    )
+
 def collage(selected_gallery):
     selected_images = []
     for img in selected_gallery: # [(path, label)]
@@ -101,13 +106,16 @@ with gr.Blocks() as demo:
             selected_gallery = gr.Gallery(
                 [], columns=[5], object_fit="contain", show_label=False, elem_classes="gallery", height=200, label="Selected Images", interactive=False
             )
-            collage_btn = gr.Button("Generate Collage")
+            with gr.Row():
+                clear_btn = gr.Button("Clear Selection")
+                collage_btn = gr.Button("Generate Collage")
         output = gr.Image(label="Collage")
     
     # Events
     gallery.select(get_select_value, inputs=selected_gallery, outputs=selected_gallery)
     process_btn.click(fn=update, inputs=inp, outputs=[options])
     options.select(get_select_cate, inputs=options, outputs=gallery)
+    clear_btn.click(clear, outputs=selected_gallery)
     collage_btn.click(collage, selected_gallery, output)
 
 if __name__ == "__main__":
