@@ -1,6 +1,6 @@
 
 # Auto-Segment-Collage
-result slide： https://docs.google.com/presentation/d/16oAbMgt4gp9p5RhnQj_Zkb__c0S4eJXOKm8AwNTVCLU/edit?usp=sharing
+Result slide & video demo： https://docs.google.com/presentation/d/16oAbMgt4gp9p5RhnQj_Zkb__c0S4eJXOKm8AwNTVCLU/edit?usp=sharing
 ## How to use our web application
 1. clone repo```
 https://github.com/FRANK-RAN/Auto-Segment-Collage.git```
