@@ -21,9 +21,11 @@ def segment_image(IMAGE_PATH, mask_generator, result_dir):
     segmented_images = []
     save_paths = []
 
-    for i, mask in enumerate(masks[:20]):
+    for i, mask in enumerate(masks[:10]):
         mask_3d = np.stack([mask]*3, axis=-1)
-        segmented_image = np.where(mask_3d, image_rgb, 0)  # Replace '0' with another value for a different background color
+        # Use white background instead of black
+        white_background = np.ones_like(image_rgb) * 255  # Create a white background image
+        segmented_image = np.where(mask_3d, image_rgb, white_background)
         segmented_images.append(segmented_image)
         save_path = os.path.join(save_dir, f'segmented_image_{i}.png')
         save_paths.append(save_path)
@@ -37,17 +39,3 @@ def segment_batch_images(IMAGE_DIR, mask_generator, result_dir='/home/jr151/code
         segment_image(image_path, mask_generator, result_dir)
 
 
-def main():
-    # HOME = os.getcwd()
-    # Model_dir = os.path.join('/home/jr151/model')
-    # CHECKPOINT_PATH = os.path.join(Model_dir, "seg", "sam_vit_h_4b8939.pth")
-    DEVICE = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
-    CHECKPOINT_PATH = '/home/jr151/model/seg/sam_vit_h_4b8939.pth'      # TODO: Replace with the path to the checkpoint file
-    MODEL_TYPE = "vit_h"
-    sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH).to(device=DEVICE)
-    mask_generator = SamAutomaticMaskGenerator(sam)
-    segment_image('/home/jr151/code/projects/Auto-Segment-Collage/sam/data/dog-2.jpeg', mask_generator)
-    segment_batch_images('/home/jr151/data/animals/animals/antelope', mask_generator)
-
-if __name__ == '__main__':
-    main()
