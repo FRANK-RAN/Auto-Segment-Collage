@@ -33,9 +33,4 @@ def segment_image(IMAGE_PATH, mask_generator, result_dir):
     
     return segmented_images, save_paths
 
-def segment_batch_images(IMAGE_DIR, mask_generator, result_dir='/home/jr151/code/projects/Auto-Segment-Collage/sam/results/'):
-    for pic in os.listdir(IMAGE_DIR):
-        image_path = os.path.join(IMAGE_DIR, pic)
-        segment_image(image_path, mask_generator, result_dir)
-
 

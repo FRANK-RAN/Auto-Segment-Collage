@@ -39,7 +39,7 @@ def create_custom_dataset(source_dir, target_dir, subdir_names=None, num_images_
         print(f"Copied {len(selected_files)} images from {subdir} to {target_subdir}")
 
 if __name__ == "__main__":
-    source_path = "/home/jr151/data/animals/animals"  # Update the source path as required
-    dataset_path = "/home/jr151/code/projects/Auto-Segment-Collage/input/custom_dataset_10"  # Path where the custom dataset will be stored
+    source_path = ""  # Update the source path as required
+    dataset_path = ""  # Path where the custom dataset will be stored
     specific_dirs = ["bear", "dog", "lion","panda", "elephant", "horse", "owl","tiger", "wolf","antelope"]  # Specify subdirectories to include
     create_custom_dataset(source_path, dataset_path, specific_dirs, 10)
