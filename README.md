@@ -1,6 +1,7 @@
 
 # Auto-Segment-Collage
 Result slide & video demo： https://docs.google.com/presentation/d/16oAbMgt4gp9p5RhnQj_Zkb__c0S4eJXOKm8AwNTVCLU/edit?usp=sharing
+video: https://youtu.be/oJaiR_W0OiU
 ## How to use our web application
 1. clone repo```
 https://github.com/FRANK-RAN/Auto-Segment-Collage.git```
@@ -25,3 +26,7 @@ sam_model/weights/sam_vit_h_4b8939.pth
 ```
 Replace CHECKPOINT_PATH in pipeline.py line 88 with your local path  
 5. ```python app.py```
+6. Demo dataset locates at:
+```
+/input/custom_dataset_10
+```
