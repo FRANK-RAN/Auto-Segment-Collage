@@ -25,7 +25,7 @@ wget -q https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth -P 
 sam_model/weights/sam_vit_h_4b8939.pth
 ```
 Replace CHECKPOINT_PATH in pipeline.py line 88 with your local path  
-5. ```python app.py```
+5. ```python app.py```  
 6. Demo dataset locates at:
 ```
 /input/custom_dataset_10
